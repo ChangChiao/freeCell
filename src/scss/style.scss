@@ -1,0 +1,101 @@
+body {
+    font-family: "Roboto Mono", monospace;
+}
+
+.container {
+    padding: 20px;
+}
+
+#main-card {
+    display: flex;
+    justify-content: space-around;
+    width: 80%;
+    margin: 0 auto;
+}
+
+#temp-card {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 50px;
+    .card-temp-zone {
+        border: 1px solid antiquewhite;
+        border-radius: 10px;
+        width: 150px;
+        height: 220px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        img {
+            width: 100%;
+            pointer-events: none;
+        }
+        &.card-done-zone {
+            position: relative;
+            &::after {
+                content: "A";
+                color: antiquewhite;
+                position: absolute;
+                // width: 50px;
+                // height: 50px;
+                text-align: center;
+                line-height: 220px;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                font-size: 80px;
+                opacity: 0.3;
+            }
+        }
+    }
+}
+
+.card-col {
+    position: relative;
+    height: 600px;
+    width: 150px;
+    user-select: none;
+    .poker-card {
+        position: absolute;
+        left: 0;
+        border-radius: 10px;
+        // border: 1px solid #333;
+        width: 150px;
+        height: 220px;
+        //transition-duration: .5s;
+        opacity: 0;
+        overflow: hidden;
+        img {
+            width: 100%;
+            // pointer-events: none;
+        }
+    }
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    h1 {
+        color: antiquewhite;
+    }
+    #time {
+        width: 100px;
+        height: 100px;
+        background: rgb(209, 39, 23);
+        color: #fff;
+        text-align: center;
+        line-height: 100px;
+        border-radius: 50%;
+    }
+    #play-btn {
+        width: 100px;
+        height: 50px;
+        font-size: 20px;
+        border-radius: 10px;
+        border: none;
+        background: #333;
+        color: antiquewhite;
+        cursor: pointer;
+    }
+}
