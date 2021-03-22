@@ -50,7 +50,7 @@ const pokerArr = Array(52).fill(0).map((item, index) => {
 const shuffleCard = shuffle(pokerArr)
 //隨機發牌
 shuffleCard.map(card => {
-    if (defaultCard.includes(card)) return
+    if(defaultCard.includes(card)) return
     const randomOrder = distributeCard()
     mainDeck[randomOrder].push(card)
 })
@@ -67,7 +67,7 @@ const createDecks = () => {
                 cardInstance.draggable = true
             }
             cardBlock.appendChild(cardInstance)
-            // cardInstance.style.top = cardIndex * 40 + 'px'
+            cardInstance.style.top = cardIndex * 40 + 'px'
             cardInstance.cardNumber = card
             cardInstance.cardGroup = index
             cardInstance.style.opacity = '1'
@@ -80,18 +80,17 @@ const createDecks = () => {
 
 }
 
-const creatCard = (num) => {
-    const cardName = transSuits(num)
-    const card = document.createElement('div')
-    const img = new Image();
-    const path = require(`./images/${cardName}.png`)
-    img.src = path
-    card.appendChild(img)
-    card.id = cardName
-    card.droppable = true
-    card.classList.add('poker-card')
-    return card
-}
+    const creatCard = (num) => {
+        const cardName = transSuits(num)
+        const card = document.createElement('div')
+        const img = new Image();
+        const path = require(`./images/${cardName}.png`)
+        img.src = path
+        card.appendChild(img)
+        card.id = cardName
+        card.classList.add('poker-card')
+        return card
+    }
 
 
 // const creatCard = (num) => {
@@ -199,30 +198,31 @@ const dragStart = e => {
 const dragEnter = e => {
     e.defaultPrevented
     console.log('dragEnter');
-    // if (e.target.id.indexOf('card-temp-zone') > -1) isCacheDeck = true
-    // if (e.target.id.indexOf('card-done-zone') > -1) isSuccessDeck = true
-    // if (e.target.id === 'main-card') return;
+    if (e.target.id.indexOf('card-temp-zone') > -1) isCacheDeck = true
+    if (e.target.id.indexOf('card-done-zone') > -1) isSuccessDeck = true
+    if (e.target.id === 'main-card') return;
     if (!e.target.cardNumber) return
+    onDropDeckNumber = e.target.cardGroup
+    onDropNumber = e.target.cardNumber
     if (onDragNumber === onDropNumber) return //對象為自己
 }
 
 const dragLeave = e => {
     e.defaultPrevented
-    console.log('dragLeave', e.target);
-    // if (e.target.id.indexOf('wrapper') > -1) {
-    //     isCacheDeck = false
-    //     isSuccessDeck = false
-    // }
-    // if (e.target.id.indexOf('card-temp-zone') > -1) {
-    //     isCacheDeck = true
-    //     isSuccessDeck = false
-    //     cacheDeckNumber = e.target.cardGroup
-    // }
-    // if (e.target.id.indexOf('card-done-zone') > -1) {
-    //     isSuccessDeck = true
-    //     isCacheDeck = false
-    //     cacheDeckNumber = e.target.cardGroup
-    // }
+    if (e.target.id.indexOf('wrapper') > -1) {
+        isCacheDeck = false
+        isSuccessDeck = false
+    }
+    if (e.target.id.indexOf('card-temp-zone') > -1) {
+        isCacheDeck = true
+        isSuccessDeck = false
+        cacheDeckNumber = e.target.cardGroup
+    }
+    if (e.target.id.indexOf('card-done-zone') > -1) {
+        isSuccessDeck = true
+        isCacheDeck = false
+        cacheDeckNumber = e.target.cardGroup
+    }
 }
 
 const dragEnd = e => {
@@ -230,22 +230,63 @@ const dragEnd = e => {
     if (isGamePause) return
     // const isCardDoneZone = e.target.id.indexOf('card-done-zone') > -1
     // if(isCardDoneZone) return
-    console.log('e', e.target);
+    console.log('e',e.target);
     console.log('cacheDeckNumber', cacheDeckNumber);
-    console.log('e.target', e.target);
     // 暫存區
-    if (e.target.id.includes('card-temp-zone')) {
-        cacheDeckNumber = e.target.cardGroup
+    if (isCacheDeck) {
         dragTempDeck(e)
     }
     //完成區
-    if (e.target.id.includes('card-done-zone')) {
-        cacheDeckNumber = e.target.cardGroup
+    if (isSuccessDeck) {
         dragSuccessDeck(e)
     }
-    console.log('e.target.className', e.target.className);
-    if (e.target.className.includes('poker-card')) {
-        console.log('poker-card');
+    if (!isSuccessDeck && !isCacheDeck) {
+        const drapCardNum = Math.ceil(onDragNumber / 13)
+        const dropCardNum = Math.ceil(onDragNumber / 13)
+        //確認卡片是否有效移動
+        const vaildMoveCard = dropCardNum !== drapCardNum && //花色相同
+            dropCardNum + drapCardNum !== 5 && //黑桃不能對梅花 方塊不能對愛心
+            (onDropNumber % 13 === (onDropNumber % 13) + 1 ||
+            (onDropNumber % 13 === 0 && onDragNumber % 13 === 12))
+        const isCacheCardDeck = e.target.id.indexOf('card-temp-zone') > -1
+        if (isCacheCardDeck && vaildMoveCard) { //從暫存區搬回來
+                const cardTempNumber = e.target.id.split('-')[2]
+                mainDeck[onDragDeckNumber].push(onDragNumber)
+                tempDeck[cardTempNumber].pop()
+                reDraw()
+                return
+        }
+        if (
+            [onDragNumber] !== mainDeck[onDragDeckNumber].slice(-1) ||
+            [onDragNumber] !== mainDeck[onDragDeckNumber].slice(-1)
+        ) {
+            isCacheDeck = false
+            isSuccessDeck = false
+            return
+        }
+        if (vaildMoveCard) {
+            dragMainDeck(e)
+        }
+    }
+}
+
+const drop = ()  => {
+    // e.defaultPrevented
+    e.preventDefault()
+    if (isGamePause) return
+    // const isCardDoneZone = e.target.id.indexOf('card-done-zone') > -1
+    // if(isCardDoneZone) return
+    console.log('e', e.target);
+    console.log('cacheDeckNumber', cacheDeckNumber);
+    // 暫存區
+    if (isCacheDeck) {
+        dragTempDeck(e)
+    }
+    //完成區
+    if (isSuccessDeck) {
+        dragSuccessDeck(e)
+    }
+    if (!isSuccessDeck && !isCacheDeck) {
         const drapCardNum = Math.ceil(onDragNumber / 13)
         const dropCardNum = Math.ceil(onDragNumber / 13)
         //確認卡片是否有效移動
@@ -253,7 +294,6 @@ const dragEnd = e => {
             dropCardNum + drapCardNum !== 5 && //黑桃不能對梅花 方塊不能對愛心
             (onDropNumber % 13 === (onDropNumber % 13) + 1 ||
                 (onDropNumber % 13 === 0 && onDragNumber % 13 === 12))
-        console.log('vaildMoveCard', vaildMoveCard);
         const isCacheCardDeck = e.target.id.indexOf('card-temp-zone') > -1
         if (isCacheCardDeck && vaildMoveCard) { //從暫存區搬回來
             const cardTempNumber = e.target.id.split('-')[2]
@@ -262,81 +302,24 @@ const dragEnd = e => {
             reDraw()
             return
         }
-        // if (
-        //     [onDragNumber] !== mainDeck[onDragDeckNumber].slice(-1) ||
-        //     [onDragNumber] !== mainDeck[onDragDeckNumber].slice(-1)
-        // ) {
-        //     isCacheDeck = false
-        //     isSuccessDeck = false
-        //     return
-        // }
-        if (vaildMoveCard) {
-            dragMainDeck(e)
-        }
-    }
-}
-
-const dragOver = e => {
-    e.preventDefault();
-}
-
-const drop = e => {
-    e.preventDefault()
-    if (isGamePause) return
-    //判斷花色用
-    const drapCardNum = Math.ceil(onDragNumber / 13)
-    const dropCardNum = Math.ceil(onDropNumber / 13)
-    console.log('dropCardNum', dropCardNum, onDropNumber);
-    console.log('drapCardNum', drapCardNum, onDragNumber);
-
-    const isSingle = payload.children.length === 1
-    const isDone = e.target.parentNode.className.includes('card-done-zone')
-    // 暫存區
-    if (e.target.id.includes('card-temp-zone') && isSingle) {
-        cacheDeckNumber = e.target.cardGroup
-        dragTempDeck(e)
-        return
-    }
-    onDropDeckNumber = e.target.cardGroup
-    onDropNumber = e.target.cardNumber
-    //完成區
-    if (e.target.id.includes('card-done-zone') && isDone && isSingle) {
-        console.log('success');
-        if (dropCardNum === drapCardNum && (onDropNumber % 13 === (onDragNumber % 13) + 1 ||
-            (onDropNumber % 13 === 0 && onDragNumber % 13 === 12))) {
-                cacheDeckNumber = e.target.cardGroup
-                dragSuccessDeck(e)
-        }
-        return
-    }
-    if (e.target.className.includes('poker-card')) {
-        console.log('poker-card');
-        //確認卡片是否有效移動
-        const vaildMoveCard = dropCardNum !== drapCardNum && //花色相同
-            dropCardNum + drapCardNum !== 5 && //黑桃不能對梅花 方塊不能對愛心
-            (onDropNumber % 13 === (onDragNumber % 13) + 1 ||
-                (onDropNumber % 13 === 0 && onDragNumber % 13 === 12))
-
-        console.log('vaildMoveCard', vaildMoveCard);
-        const isCacheCardDeck = e.target.id.indexOf('card-temp-zone') > -1
-        if (isCacheCardDeck && vaildMoveCard) { //從暫存區搬回來
-            const cardTempNumber = e.target.id.split('-')[2]
-            mainDeck[onDragDeckNumber].push(onDragNumber)
-            tempDeck[cardTempNumber].pop()
-            reDraw()
+        if (
+            [onDragNumber] !== mainDeck[onDragDeckNumber].slice(-1) ||
+            [onDragNumber] !== mainDeck[onDragDeckNumber].slice(-1)
+        ) {
+            isCacheDeck = false
+            isSuccessDeck = false
             return
         }
-
         if (vaildMoveCard) {
-            console.log('vaild');
             dragMainDeck(e)
         }
     }
 }
 
 
-const dragTempDeck = (e) => {
+const dragTempDeck = (e) =>{
     if (tempDeck[cacheDeckNumber]) return
+    insertHtml(e)
     recordDeck.push({
         from: {
             groupNumber: onDragDeckNumber,
@@ -350,11 +333,10 @@ const dragTempDeck = (e) => {
     })
     mainDeck[onDragDeckNumber].pop()
     tempDeck[cacheDeckNumber] = onDragNumber
-    insertHtml(e)
-    setDragable()
+    isCacheDeck = false
 }
-
-const dragSuccessDeck = e => {
+ 
+const dragSuccessDeck = () =>{
     if (onDragNumber !== successDeck[cacheDeckNumber].slice(-1)) return
     recordDeck.push({
         from: {
@@ -370,11 +352,11 @@ const dragSuccessDeck = e => {
     mainDeck[onDragDeckNumber].pop()
     successDeck[cacheDeckNumber].push(onDragNumber)
     insertHtml(e)
-    setDragable()
+    isSuccessDeck = false
 }
 
 
-const dragMainDeck = e => {
+const dragMainDeck = () =>{
     recordDeck.push({
         from: {
             groupNumber: onDragDeckNumber,
@@ -389,16 +371,14 @@ const dragMainDeck = e => {
     mainDeck[onDragDeckNumber].pop()
     mainDeck[onDropDeckNumber].push(onDragNumber)
     insertHtml(e)
-    setDragable()
 }
 
 
-const insertHtml = (event) => {
+const insertHtml = (event) =>{
     console.log('event.target', event.target);
     console.log('payload', payload);
     payload.parentNode.removeChild(payload);
     event.target.appendChild(payload);
-
 }
 
 const cancelDefault = (e) => {
@@ -411,7 +391,6 @@ const wrapper = document.getElementById('wrapper')
 wrapper.addEventListener('dragstart', dragStart)
 wrapper.addEventListener('dragenter', dragEnter)
 wrapper.addEventListener('dragleave', dragLeave)
-wrapper.addEventListener('dragover', dragOver)
 // wrapper.addEventListener('dragend', dragEnd)
 wrapper.addEventListener('drop', drop, false)
 
@@ -436,18 +415,6 @@ const reDraw = () => {
     createTempDeck()
 }
 
-const setDragable = () => {
-    const cols = document.getElementsByClassName('card-col')
-    for (let i = 0; i < cols.length; i++) {
-        const lastOne = cols[i].lastChild
-        console.log('lastOne', lastOne);
-        lastOne.draggable = true
-        if (lastOne.children.length > 1) { //有連續牌
-            lastOne.children[lastOne.children.length - 1].draggable = true
-        }
-    }
-
-}
 
 const pause = () => {
     if (isGamePause) {

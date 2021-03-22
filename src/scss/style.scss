@@ -3,14 +3,13 @@ body {
 }
 
 .container {
-    padding: 20px;
+    width: 80%;
+    margin: 0 auto;
 }
 
 #main-card {
     display: flex;
     justify-content: space-around;
-    width: 80%;
-    margin: 0 auto;
 }
 
 #temp-card {
@@ -25,13 +24,18 @@ body {
         display: flex;
         justify-content: center;
         align-items: center;
-        img {
-            width: 100%;
-            pointer-events: none;
+        .poker-card {
+            // width: 100%;
+            position: relative;
+            z-index: 10;
+            img{
+                width: 100%;
+                pointer-events: none;
+            }
         }
         &.card-done-zone {
             position: relative;
-            &::after {
+            &::before {
                 content: "A";
                 color: antiquewhite;
                 position: absolute;
@@ -52,7 +56,7 @@ body {
 
 .card-col {
     position: relative;
-    height: 600px;
+    height: 1200px;
     width: 150px;
     user-select: none;
     .poker-card {
@@ -60,14 +64,27 @@ body {
         left: 0;
         border-radius: 10px;
         // border: 1px solid #333;
-        width: 150px;
-        height: 220px;
+        // width: 150px;
+        // height: 220px;
         //transition-duration: .5s;
+        top: 0;
         opacity: 0;
-        overflow: hidden;
-        img {
+        // overflow: hidden;
+        @for $i from 1 through 20 {
+            &:nth-of-type(#{$i}) {
+                top: #{$i*40}px;
+            }
+        }
+        img{
+            pointer-events: none;
             width: 100%;
-            // pointer-events: none;
+        }
+        .poker-card{
+            @for $i from 1 through 20 {
+                &:nth-of-type(#{$i}) {
+                 top: #{$i*40}px;
+                }
+            }
         }
     }
 }
@@ -76,6 +93,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding-bottom: 50px;
     h1 {
         color: antiquewhite;
     }
@@ -89,13 +107,18 @@ header {
         border-radius: 50%;
     }
     #play-btn {
-        width: 100px;
-        height: 50px;
-        font-size: 20px;
+        width: 80px;
+        height: 40px;
+        font-size: 18px;
         border-radius: 10px;
         border: none;
-        background: #333;
+        letter-spacing: 2px;
+        background: #666;
         color: antiquewhite;
         cursor: pointer;
+    }
+    i {
+        cursor: pointer;
+        padding: 0 5px;
     }
 }
