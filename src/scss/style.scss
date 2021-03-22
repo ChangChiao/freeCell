@@ -32,6 +32,11 @@ body {
                 width: 100%;
                 pointer-events: none;
             }
+            .poker-card{
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
         }
         &.card-done-zone {
             position: relative;
