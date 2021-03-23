@@ -27,15 +27,16 @@ body {
         align-items: center;
         .poker-card {
             // width: 100%;
+            top: 0 !important;
             position: relative;
             z-index: 10;
-            img{
+            img {
                 width: 100%;
                 pointer-events: none;
             }
-            .poker-card{
+            .poker-card {
                 position: absolute;
-                top: 0;
+                top: 0 !important;
                 left: 0;
             }
         }
@@ -76,19 +77,19 @@ body {
         top: 0;
         opacity: 0;
         // overflow: hidden;
-        @for $i from 1 through 20 {
-            &:nth-of-type(#{$i}) {
-                top: #{$i*40}px;
-            }
-        }
-        img{
+        // @for $i from 1 through 20 {
+        //     &:nth-of-type(#{$i}) {
+        //         top: #{$i*40}px;
+        //     }
+        // }
+        img {
             pointer-events: none;
             width: 100%;
         }
-        .poker-card{
+        .poker-card {
             @for $i from 1 through 20 {
                 &:nth-of-type(#{$i}) {
-                 top: #{$i*40}px;
+                    top: #{$i * 40}px;
                 }
             }
         }

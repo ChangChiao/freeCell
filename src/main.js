@@ -19,8 +19,8 @@ let onDragNumber = null,
     cacheDeckNumber = null,
     // isSuccessDeck = false,
     isGamePause = false; //遊戲是否為暫停狀態
-    
-    
+
+
 const mainBlock = document.getElementById('main-card')
 const tempDeckContainer = document.getElementById('temp-card')
 const shuffleCard = Card.createPokerCard()
@@ -97,9 +97,74 @@ const createTempDeck = () => {
 }
 
 
+//判斷是否為連續牌
+const setContinue = () => {
+    const cols = document.getElementsByClassName('card-col')
+    for (let i = 0; i < cols.length; i++) {
+        const temp = []
+        let children = cols[i].childNodes
+        for (let k = children.length - 1; k >= 1; k--) {
+            let last = children[k].cardNumber % 13
+            let prev = children[k - 1].cardNumber % 13 + 1
+            let lastSuit = Math.ceil(children[k].cardNumber / 13)
+            let prevSuit = Math.ceil(children[k - 1].cardNumber / 13)
+            if (last === prev && lastSuit + prevSuit !== 5 && lastSuit !== prevSuit) {
+                if (temp.length === 0) {
+                    temp.push(children[k])
+                }
+                temp.push(children[k - 1])
+            }
+        }
+        console.log('temp', temp, 'i', i);
+        for (let j = 1; j < temp.length; j++) {
+            let container = temp[0]
+            container.appendChild(temp[j])
+        }
+    }
+}
+
+const calStyle = () => {
+    const cols = document.getElementsByClassName('card-col')
+    for (let i = 0; i < cols.length; i++) {
+        const temp = []
+        let children = cols[i].childNodes
+        for (let k = 0; k < children.length; k++) {
+            temp.push(children[k])
+            let inner = children[k].childNodes
+            if (inner.length > 1) {
+                for (let j = 1; j < inner.length; j++) {
+                    temp.push(null)
+                }
+            }
+        }
+        console.log('top',temp,'i',i);
+        for (let j = 1; j < temp.length; j++) {
+            if(temp[j]){
+                temp[j].style.top = `${j*40}px`
+            }
+        }
+    }
+}
+
+//判斷哪張牌可被拖曳
+const setDragable = () => {
+    const cols = document.getElementsByClassName('card-col')
+    for (let i = 0; i < cols.length; i++) {
+        const lastOne = cols[i].lastChild
+        console.log('lastOne', lastOne);
+        lastOne.draggable = true
+        if (lastOne.children.length > 1) { //有連續牌
+            lastOne.children[lastOne.children.length - 1].draggable = true
+        }
+    }
+}
+
 const gameStart = () => {
-    createMainDecks() 
+    createMainDecks()
     createTempDeck()
+    setContinue()
+    calStyle()
+    setDragable()
 }
 
 gameStart()
@@ -136,7 +201,7 @@ const dragOver = e => {
 const drop = e => {
     e.preventDefault()
     if (isGamePause) return
-    
+
     const isSingle = payload.children.length === 1
     const isDone = e.target.parentNode.className.includes('card-done-zone')
     // 暫存區
@@ -152,38 +217,38 @@ const drop = e => {
     const dropCardNum = Math.ceil(onDropNumber / 13)
     console.log('dropCardNum', dropCardNum, onDropNumber);
     console.log('drapCardNum', drapCardNum, onDragNumber);
-    
-    
+
+
     //完成區
-    console.log('e.target.id',e.target.id)
+    console.log('e.target.id', e.target.id)
     if (e.target.className.includes('poker-card') && isDone && isSingle) {
         console.log('success');
-        if (dropCardNum === drapCardNum && onDropNumber % 13 === (onDragNumber % 13) - 1 ) {
-                cacheDeckNumber = e.target.parentNode.cardGroup
-                console.log('cacheDeckNumber',cacheDeckNumber);
-                dragSuccessDeck(e)
+        if (dropCardNum === drapCardNum && onDropNumber % 13 === (onDragNumber % 13) - 1) {
+            cacheDeckNumber = e.target.parentNode.cardGroup
+            console.log('cacheDeckNumber', cacheDeckNumber);
+            dragSuccessDeck(e)
         }
         return
     }
 
     //比對數字是否依序
     let condition = (onDropNumber % 13 === (onDragNumber % 13) + 1 ||
-    (onDropNumber % 13 === 0 && onDragNumber % 13 === 12))
+        (onDropNumber % 13 === 0 && onDragNumber % 13 === 12))
 
     if (e.target.className.includes('poker-card')) {
         console.log('poker-card');
         //確認卡片是否有效移動
         const vaildMoveCard = dropCardNum !== drapCardNum && //花色相同
             dropCardNum + drapCardNum !== 5 && condition //黑桃不能對梅花 方塊不能對愛心
-            
-        console.log('condition',condition)
+
+        console.log('condition', condition)
         console.log('vaildMoveCard', vaildMoveCard);
         const isCacheCardDeck = e.target.id.indexOf('card-temp-zone') > -1
         if (isCacheCardDeck && vaildMoveCard) { //從暫存區搬回來
             const cardTempNumber = e.target.id.split('-')[2]
             mainDeck[onDragDeckNumber].push(onDragNumber)
             tempDeck[cardTempNumber].pop()
-            reDraw()
+            // reDraw()
             return
         }
 
@@ -287,30 +352,18 @@ const reDraw = () => {
     createTempDeck()
 }
 
-//判斷哪張牌可被拖曳
-const setDragable = () => {
-    const cols = document.getElementsByClassName('card-col')
-    for (let i = 0; i < cols.length; i++) {
-        const lastOne = cols[i].lastChild
-        console.log('lastOne', lastOne);
-        lastOne.draggable = true
-        if (lastOne.children.length > 1) { //有連續牌
-            lastOne.children[lastOne.children.length - 1].draggable = true
-        }
-    }
 
-}
+
+
 
 const pause = () => {
     if (isGamePause) {
         btn.textContent = 'Play'
         Timer.cleanTimer()
-        console.log('11111')
     } else {
         btn.textContent = 'Pause'
         Timer.countDown()
         reDraw()
-        console.log('22222')
     }
     isGamePause = !isGamePause
 }
