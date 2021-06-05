@@ -101,48 +101,111 @@ const createTempDeck = () => {
 const setContinue = () => {
     const cols = document.getElementsByClassName('card-col')
     for (let i = 0; i < cols.length; i++) {
-        const temp = []
+        const arr = []
+        const target = []
+        let flag = false;
         let children = cols[i].childNodes
-        for (let k = children.length - 1; k >= 1; k--) {
-            let last = children[k].cardNumber % 13
-            let prev = children[k - 1].cardNumber % 13 + 1
-            let lastSuit = Math.ceil(children[k].cardNumber / 13)
-            let prevSuit = Math.ceil(children[k - 1].cardNumber / 13)
-            if (last === prev && lastSuit + prevSuit !== 5 && lastSuit !== prevSuit) {
-                if (temp.length === 0) {
-                    temp.push(children[k])
+        for (let k = 0; k < children.length - 1; k++) {
+            let prev = children[k].cardNumber % 13 !== 0 ? children[k].cardNumber % 13 : 13
+            let next = children[k + 1].cardNumber % 13 !== 0 ? children[k + 1].cardNumber % 13 : 13
+            let prevSuit = Math.ceil(children[k].cardNumber / 13)
+            let nextSuit = Math.ceil(children[k + 1].cardNumber / 13)
+            console.log("prev", prev);
+            console.log("next", next);
+            console.log("prevSuit", prevSuit);
+            console.log("nextSuit", nextSuit);
+            console.log("--------------", prev === (next + 1));
+            if (prev === (next + 1) && nextSuit + prevSuit !== 5 && nextSuit !== prevSuit) {
+                console.log("it!!!!!!!!!!!!!!!!");
+                if (!flag){
+                    flag = true
+                    target.push(children[k])
+                    arr.push([])
                 }
-                temp.push(children[k - 1])
+                arr[arr.length - 1].push(children[k + 1])
+                console.log("target====", target);
+                console.log("arr====", arr);
+            }else{
+                flag = false
             }
+
+            if (k === children.length - 2){
+                if (target.length > 0) {
+                    target.forEach((vo, index) => {
+                        arr[index].forEach(item => {
+                            cols[i].removeChild(item)
+                            vo.appendChild(item)
+                        })
+                    })
+                    // for (let j = 0; j < temp.length; j++) {
+                    //     cols[i].removeChild(temp[j])
+                    //     target.appendChild(temp[j])
+                    // }
+                }
         }
-        console.log('temp', temp, 'i', i);
-        for (let j = 1; j < temp.length; j++) {
-            let container = temp[0]
-            container.appendChild(temp[j])
-        }
+    }
+    // for (let k = children.length - 1; k >= 1; k--) {
+    //     let last = children[k].cardNumber % 13
+    //     let prev = children[k - 1].cardNumber % 13 + 1
+    //     let lastSuit = Math.ceil(children[k].cardNumber / 13)
+    //     let prevSuit = Math.ceil(children[k - 1].cardNumber / 13)
+    //     if (last === prev && lastSuit + prevSuit !== 5 && lastSuit !== prevSuit) {
+    //         if (temp.length === 0) {
+    //             temp.push(children[k])
+    //         }
+    //         temp.push(children[k - 1])
+    //     }
+    // }
+    // console.log('temp', temp, 'i', i);
+    // for (let j = 1; j < temp.length; j++) {
+    //     let container = temp[0]
+    //     container.appendChild(temp[j])
+    // }
     }
 }
 
+//計算style
 const calStyle = () => {
+    console.log("calStyle_____________")
     const cols = document.getElementsByClassName('card-col')
     for (let i = 0; i < cols.length; i++) {
-        const temp = []
+        const temp = {}
         let children = cols[i].childNodes
         for (let k = 0; k < children.length; k++) {
-            temp.push(children[k])
+            // temp.push(children[k])
+            console.log("children", children);
+            children[k].style.top = `${k * 40}px`
             let inner = children[k].childNodes
+            console.log('count', inner);
             if (inner.length > 1) {
                 for (let j = 1; j < inner.length; j++) {
-                    temp.push(null)
+                    if(!temp[k]) temp[k] = 0
+                    temp[k]++
+                    console.log("inner[j]~~~~~~", inner[j]);
+                    inner[j].style.top = `${j * 40}px`
                 }
             }
         }
-        console.log('top',temp,'i',i);
-        for (let j = 1; j < temp.length; j++) {
-            if(temp[j]){
-                temp[j].style.top = `${j*40}px`
+        const arr = Object.keys(temp)
+        const base = -40
+        if(arr.length>0){
+            for (let k = 0; k < children.length; k++) {
+                // console.log("temp878787", temp , i);
+                if(k == Number(arr[0]) + 1){
+                    base+=temp[arr[0]]*40
+                    delete temp[arr[0]]
+                    console.log("delete!!!",temp);
+                }
+                base+=40
+                children[k].style.top = `${base}px`
             }
         }
+        // console.log('top',temp,'i',i);
+        // for (let j = 1; j < temp.length; j++) {
+        //     if(temp[j]){
+        //         temp[j].style.top = `${j*40}px`
+        //     }
+        // }
     }
 }
 
@@ -318,7 +381,14 @@ const insertHtml = event => {
     console.log('event.target', event.target);
     console.log('payload', payload);
     payload.parentNode.removeChild(payload);
-    event.target.appendChild(payload);
+    const parentIsPoker = event.target.parentNode.className === "poker-card"
+    if (parentIsPoker) {
+        console.log("parentIsPoker~~~~~~~");
+        event.target.parentNode.appendChild(payload);
+    } else {
+        event.target.appendChild(payload);
+    }
+    calStyle()
 }
 
 const cancelDefault = (e) => {
@@ -356,19 +426,19 @@ const reDraw = () => {
 
 
 
-const pause = () => {
+const pauseGame = () => {
+    isGamePause = !isGamePause
     if (isGamePause) {
-        btn.textContent = 'Play'
-        Timer.cleanTimer()
-    } else {
         btn.textContent = 'Pause'
         Timer.countDown()
-        reDraw()
+        // reDraw()
+    } else {
+        btn.textContent = 'Play'
+        Timer.cleanTimer()
     }
-    isGamePause = !isGamePause
 }
 const btn = document.getElementById('play-btn')
-btn.addEventListener('click', pause)
+btn.addEventListener('click', pauseGame)
 
 
 const undo = () => {
