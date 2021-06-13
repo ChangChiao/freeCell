@@ -105,6 +105,7 @@ const setContinue = () => {
             let prev = children[k].cardNumber % 13 !== 0 ? children[k].cardNumber % 13 : 13
             let next = children[k + 1].cardNumber % 13 !== 0 ? children[k + 1].cardNumber % 13 : 13
             let prevSuit = Math.ceil(children[k].cardNumber / 13)
+            let nextSuit = Math.ceil(children[k + 1].cardNumber / 13)
             if (prev === (next + 1) && nextSuit + prevSuit !== 5 && nextSuit !== prevSuit) {
                 if (!flag) {
                     flag = true
