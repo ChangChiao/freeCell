@@ -1,3 +1,7 @@
+*{
+    margin: 0;
+    padding: 0;
+}
 body {
     font-family: "Roboto Mono", monospace;
     background: #333;
@@ -6,6 +10,20 @@ body {
 .container {
     width: 80%;
     margin: 0 auto;
+}
+#wrapper{
+    position: relative;
+    padding: 20px;
+    .mask{
+        border-radius: 20px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 100;
+        background: rgba($color: #000000, $alpha: .5);
+    }
 }
 
 #main-card {
@@ -17,7 +35,7 @@ body {
     display: flex;
     justify-content: space-around;
     margin-bottom: 50px;
-    .card-temp-zone {
+    .card-top-zone {
         border: 1px solid antiquewhite;
         border-radius: 10px;
         width: 150px;
@@ -63,7 +81,7 @@ body {
 
 .card-col {
     position: relative;
-    height: 1200px;
+    height: 600px;
     width: 150px;
     user-select: none;
     .poker-card {
