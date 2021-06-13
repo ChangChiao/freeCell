@@ -175,8 +175,9 @@ const calStyle = () => {
 const setDragable = () => {
     const cols = document.getElementsByClassName('card-col')
     for (let i = 0; i < cols.length; i++) {
+        const lastOne = cols[i].lastChild
         if (lastOne) lastOne.draggable = true
-        if (lastOne.children.length > 1) { //有連續牌
+        if (lastOne && lastOne.children.length > 1) { //有連續牌
             lastOne.children[lastOne.children.length - 1].draggable = true
         }
     }
